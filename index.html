@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, private">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>WIN68 - Đăng Nhập & Đăng Ký</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/png" sizes="128x128" href="/image/WIN68.png">
+    <style>
+        .bg-tai-xiu {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+        }
+        .btn-primary {
+            background: linear-gradient(to right, #f12711, #f5af19);
+        }
+        .btn-secondary {
+            background: linear-gradient(to right, #1a2980, #26d0ce);
+        }
+        .form-container {
+            backdrop-filter: blur(10px);
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        .input-field:focus {
+            box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.5);
+        }
+        .dice-animation {
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .tab-active {
+            border-bottom: 3px solid #f5af19;
+        }
+        #loading-message {
+            display: none;
+            text-align: center;
+            color: white;
+            font-size: 1.2rem;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body class="bg-tai-xiu min-h-screen flex items-center justify-center p-4">
+    <div id="loading-message">Đang kiểm tra trạng thái đăng nhập...</div>
+    <div class="form-container rounded-xl shadow-2xl overflow-hidden w-full max-w-md hidden" id="form-container">
+        <div class="flex border-b border-gray-200">
+            <button id="login-tab" class="tab-active flex-1 py-4 px-6 text-center font-bold text-white bg-opacity-20">
+                <i class="fas fa-sign-in-alt mr-2"></i>Đăng Nhập
+            </button>
+            <button id="register-tab" class="flex-1 py-4 px-6 text-center font-bold text-white bg-opacity-20">
+                <i class="fas fa-user-plus mr-2"></i>Đăng Ký
+            </button>
+        </div>
+
+        <!-- Login Form -->
+        <form id="login-form" class="p-8 space-y-6" method="POST">
+            <div class="text-center mb-6">
+                <div class="dice-animation inline-block">
+                    <i class="fas fa-dice-three text-5xl text-yellow-400"></i>
+                </div>
+                <h2 class="mt-4 text-2xl font-bold text-white">ĐĂNG NHẬP WIN68</h2>
+            </div>
+            
+            <div>
+                <label for="login-username" class="block text-sm font-medium text-white mb-1">Tên đăng nhập</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-user text-gray-300"></i>
+                    </div>
+                    <input type="text" id="login-username" name="login-username" required
+                        class="input-field w-full pl-10 pr-3 py-2 rounded-lg bg-gray-800 bg-opacity-50 border border-gray-600 text-white placeholder-gray-400 focus:outline-none">
+                </div>
+                <p id="login-username-error" class="mt-1 text-xs text-red-300 hidden"></p>
+            </div>
+            
+            <div>
+                <label for="login-password" class="block text-sm font-medium text-white mb-1">Mật khẩu</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-lock text-gray-300"></i>
+                    </div>
+                    <input type="password" id="login-password" name="login-password" required
+                        class="input-field w-full pl-10 pr-3 py-2 rounded-lg bg-gray-800 bg-opacity-50 border border-gray-600 text-white placeholder-gray-400 focus:outline-none">
+                    <button type="button" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white" id="toggle-login-password">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+                <p id="login-password-error" class="mt-1 text-xs text-red-300 hidden"></p>
+            </div>
+            
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <input id="remember-me" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-yellow-500 focus:ring-yellow-500">
+                    <label for="remember-me" class="ml-2 block text-sm text-white">Ghi nhớ đăng nhập</label>
+                </div>
+                <a href="#" class="text-sm text-yellow-300 hover:text-yellow-200">Quên mật khẩu?</a>
+            </div>
+            
+            <button type="submit" class="btn-primary w-full py-3 px-4 rounded-lg font-bold text-white hover:opacity-90 transition duration-300">
+                <i class="fas fa-sign-in-alt mr-2"></i>Đăng Nhập
+            </button>
+            
+            <div class="text-center text-sm text-white">
+                Chưa có tài khoản? <button type="button" id="show-register" class="text-yellow-300 font-medium hover:text-yellow-200">Đăng ký ngay</button>
+            </div>
+        </form>
+
+        <!-- Register Form (Hidden by default) -->
+        <form id="register-form" class="p-8 space-y-6 hidden" method="POST">
+            <div class="text-center mb-6">
+                <div class="dice-animation inline-block">
+                    <i class="fas fa-dice text-5xl text-yellow-400"></i>
+                </div>
+                <h2 class="mt-4 text-2xl font-bold text-white">ĐĂNG KÝ WIN68</h2>
+                <p class="text-sm text-gray-200 mt-1">Tham gia ngay để kiếm về bộn bề</p>
+            </div>
+            
+            <div>
+                <label for="register-username" class="block text-sm font-medium text-white mb-1">Tên đăng nhập</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-user text-gray-300"></i>
+                    </div>
+                    <input type="text" id="register-username" name="register-username" required minlength="6"
+                        class="input-field w-full pl-10 pr-3 py-2 rounded-lg bg-gray-800 bg-opacity-50 border border-gray-600 text-white placeholder-gray-400 focus:outline-none">
+                </div>
+                <p id="register-username-error" class="mt-1 text-xs text-red-300 hidden"></p>
+            </div>
+            
+            <div>
+                <label for="register-email" class="block text-sm font-medium text-white mb-1">Email</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-envelope text-gray-300"></i>
+                    </div>
+                    <input type="email" id="register-email" name="register-email" required
+                        class="input-field w-full pl-10 pr-3 py-2 rounded-lg bg-gray-800 bg-opacity-50 border border-gray-600 text-white placeholder-gray-400 focus:outline-none">
+                </div>
+                <p id="register-email-error" class="mt-1 text-xs text-red-300 hidden"></p>
+            </div>
+            
+            <div>
+                <label for="register-password" class="block text-sm font-medium text-white mb-1">Mật khẩu</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-lock text-gray-300"></i>
+                    </div>
+                    <input type="password" id="register-password" name="register-password" required minlength="8"
+                        class="input-field w-full pl-10 pr-3 py-2 rounded-lg bg-gray-800 bg-opacity-50 border border-gray-600 text-white placeholder-gray-400 focus:outline-none">
+                    <button type="button" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white" id="toggle-register-password">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+                <p id="register-password-error" class="mt-1 text-xs text-red-300 hidden"></p>
+            </div>
+            
+            <div>
+                <label for="register-confirm-password" class="block text-sm font-medium text-white mb-1">Nhập lại mật khẩu</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-lock text-gray-300"></i>
+                    </div>
+                    <input type="password" id="register-confirm-password" name="register-confirm-password" required
+                        class="input-field w-full pl-10 pr-3 py-2 rounded-lg bg-gray-800 bg-opacity-50 border border-gray-600 text-white placeholder-gray-400 focus:outline-none">
+                </div>
+                <p id="register-confirm-error" class="mt-1 text-xs text-red-300 hidden"></p>
+            </div>
+            
+            <!-- Existing form section with the links -->
+            <div class="flex items-center">
+                <input id="accept-terms" type="checkbox" required class="h-4 w-4 rounded border-gray-300 text-yellow-500 focus:ring-yellow-500">
+                <label for="accept-terms" class="ml-2 block text-sm text-white">
+                    Tôi đồng ý với <a href="#" class="csbm text-yellow-300 hover:text-yellow-200" data-modal="terms-modal">Điều khoản dịch vụ</a> và <a href="#" class="csbm text-yellow-300 hover:text-yellow-200" data-modal="privacy-modal">Chính sách bảo mật</a>
+                </label>
+            </div>
+
+            <!-- Terms of Service Modal -->
+            <div id="terms-modal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden z-50 transition-opacity duration-300" role="dialog" aria-labelledby="terms-title" aria-modal="true">
+                <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full mx-4 max-h-[85vh] overflow-hidden transform transition-all duration-300 scale-95">
+                    <!-- Header -->
+                    <div class="bg-gradient-to-r from-blue-600 to-blue-800 p-6 flex justify-between items-center">
+                        <h2 id="terms-title" class="text-2xl font-bold text-white">Điều khoản dịch vụ</h2>
+                        <button class="close-modal text-white hover:text-yellow-300 transition-colors">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    <!-- Content -->
+                    <div class="p-8 overflow-y-auto max-h-[60vh]">
+                        <div class="text-gray-700 leading-relaxed">
+                            <p class="mb-4"><strong>1. Giới thiệu</strong></p>
+                            <p class="mb-4">Chào mừng bạn đến với WIN68, nền tảng cá cược tài xỉu trực tuyến. Bằng cách sử dụng dịch vụ của chúng tôi, bạn đồng ý tuân thủ các điều khoản và điều kiện được nêu dưới đây. Vui lòng đọc kỹ trước khi tham gia.</p>
+                            
+                            <p class="mb-4"><strong>2. Điều kiện tham gia</strong></p>
+                            <p class="mb-4">Người dùng phải từ 18 tuổi trở lên và có đầy đủ năng lực pháp lý để tham gia cá cược. Bạn chịu trách nhiệm đảm bảo rằng việc sử dụng dịch vụ của chúng tôi là hợp pháp tại khu vực của bạn.</p>
+                            
+                            <p class="mb-4"><strong>3. Tài khoản người dùng</strong></p>
+                            <p class="mb-4">Mỗi người dùng chỉ được tạo một tài khoản duy nhất. Bạn phải cung cấp thông tin chính xác và bảo mật thông tin đăng nhập của mình. WIN68 không chịu trách nhiệm cho bất kỳ tổn thất nào do việc tiết lộ thông tin tài khoản.</p>
+                            
+                            <p class="mb-4"><strong>4. Quy tắc cá cược</strong></p>
+                            <p class="mb-4">Tất cả các cược tài xỉu được xử lý theo kết quả ngẫu nhiên từ hệ thống xúc xắc của chúng tôi. Người dùng không được phép sử dụng bất kỳ phần mềm hoặc công cụ nào để can thiệp vào kết quả trò chơi. Mọi hành vi gian lận sẽ dẫn đến khóa tài khoản vĩnh viễn.</p>
+                            
+                            <p class="mb-4"><strong>5. Giao dịch tài chính</strong></p>
+                            <p class="mb-4">Nạp và rút tiền phải được thực hiện qua các phương thức thanh toán được hỗ trợ. WIN68 có quyền yêu cầu xác minh danh tính trước khi xử lý giao dịch rút tiền.</p>
+                            
+                            <p class="mb-4"><strong>6. Giới hạn trách nhiệm</strong></p>
+                            <p class="mb-4">WIN68 không chịu trách nhiệm cho bất kỳ tổn thất nào phát sinh từ việc sử dụng dịch vụ, bao gồm nhưng không giới hạn ở lỗi hệ thống hoặc gián đoạn dịch vụ.</p>
+                            
+                            <p class="mb-4"><strong>7. Thay đổi điều khoản</strong></p>
+                            <p class="mb-4">Chúng tôi có quyền cập nhật hoặc sửa đổi các điều khoản này bất kỳ lúc nào. Người dùng sẽ được thông báo qua email hoặc thông báo trên nền tảng.</p>
+                            
+                            <p class="mb-4"><strong>8. Liên hệ</strong></p>
+                            <p class="mb-4">Nếu bạn có câu hỏi hoặc cần hỗ trợ, vui lòng liên hệ qua email: kakawiner04@gmail.com</p>
+                        </div>
+                    </div>
+                    <!-- Footer -->
+                    <div class="p-6 border-t border-gray-200">
+                        <button class="close-modal w-full bg-yellow-500 text-white py-3 px-4 rounded-lg font-semibold hover:bg-yellow-600 transition-all transform hover:scale-105">Đóng</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Privacy Policy Modal -->
+            <div id="privacy-modal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden z-50 transition-opacity duration-300" role="dialog" aria-labelledby="privacy-title" aria-modal="true">
+                <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full mx-4 max-h-[85vh] overflow-hidden transform transition-all duration-300 scale-95">
+                    <!-- Header -->
+                    <div class="bg-gradient-to-r from-blue-600 to-blue-800 p-6 flex justify-between items-center">
+                        <h2 id="privacy-title" class="text-2xl font-bold text-white">Chính sách bảo mật</h2>
+                        <button class="close-modal text-white hover:text-yellow-300 transition-colors">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    <!-- Content -->
+                    <div class="p-8 overflow-y-auto max-h-[60vh]">
+                        <div class="text-gray-700 leading-relaxed">
+                            <p class="mb-4"><strong>1. Thu thập thông tin</strong></p>
+                            <p class="mb-4">WIN68 thu thập các thông tin cá nhân như tên đăng nhập, email, và thông tin thanh toán để cung cấp dịch vụ cá cược tài xỉu. Chúng tôi cam kết chỉ sử dụng thông tin này cho các mục đích hợp pháp.</p>
+                            
+                            <p class="mb-4"><strong>2. Sử dụng thông tin</strong></p>
+                            <p class="mb-4">Thông tin của bạn được sử dụng để:
+                                <ul class="list-disc pl-6">
+                                    <li>Xác minh danh tính và quản lý tài khoản.</li>
+                                    <li>Xử lý giao dịch nạp/rút tiền.</li>
+                                    <li>Gửi thông báo về cập nhật dịch vụ hoặc khuyến mãi.</li>
+                                    <li>Phát hiện và ngăn chặn các hoạt động gian lận.</li>
+                                </ul>
+                            </p>
+                            
+                            <p class="mb-4"><strong>3. Chia sẻ thông tin</strong></p>
+                            <p class="mb-4">Chúng tôi không bán hoặc chia sẻ thông tin cá nhân của bạn với bên thứ ba, trừ khi:
+                                <ul class="list-disc pl-6">
+                                    <li>Có sự đồng ý của bạn.</li>
+                                    <li>Được yêu cầu bởi cơ quan pháp luật.</li>
+                                    <li>Cần thiết để xử lý giao dịch qua đối tác thanh toán.</li>
+                                </ul>
+                            </p>
+                            
+                            <p class="mb-4"><strong>4. Bảo mật thông tin</strong></p>
+                            <p class="mb-4">Chúng tôi sử dụng các biện pháp bảo mật tiên tiến (mã hóa SSL, tường lửa) để bảo vệ dữ liệu của bạn. Tuy nhiên, không có hệ thống nào an toàn tuyệt đối, và bạn nên bảo mật thông tin đăng nhập của mình.</p>
+                            
+                            <p class="mb-4"><strong>5. Quyền của người dùng</strong></p>
+                            <p class="mb-4">Bạn có quyền:
+                                <ul class="list-disc pl-6">
+                                    <li>Yêu cầu truy cập hoặc sửa đổi thông tin cá nhân.</li>
+                                    <li>Yêu cầu xóa dữ liệu (trong phạm vi luật pháp cho phép).</li>
+                                    <li>Từ chối nhận email tiếp thị.</li>
+                                </ul>
+                            </p>
+                            
+                            <p class="mb-4"><strong>6. Cookie</strong></p>
+                            <p class="mb-4">Chúng tôi sử dụng cookie để cải thiện trải nghiệm người dùng, chẳng hạn như lưu trữ tùy chọn đăng nhập. Bạn có thể tắt cookie trong trình duyệt, nhưng điều này có thể ảnh hưởng đến chức năng của nền tảng.</p>
+                            
+                            <p class="mb-4"><strong>7. Thay đổi chính sách</strong></p>
+                            <p class="mb-4">Chúng tôi có thể cập nhật chính sách bảo mật này và sẽ thông báo cho bạn qua email hoặc thông báo trên nền tảng.</p>
+                            
+                            <p class="mb-4"><strong>8. Liên hệ</strong></p>
+                            <p class="mb-4">Nếu bạn có thắc mắc, vui lòng liên hệ qua email: kakawiner04@gmail.com</p>
+                        </div>
+                    </div>
+                    <!-- Footer -->
+                    <div class="p-6 border-t border-gray-200">
+                        <button class="close-modal w-full bg-yellow-500 text-white py-3 px-4 rounded-lg font-semibold hover:bg-yellow-600 transition-all transform hover:scale-105">Đóng</button>
+                    </div>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn-secondary w-full py-3 px-4 rounded-lg font-bold text-white hover:opacity-90 transition duration-300">
+                <i class="fas fa-user-plus mr-2"></i>Đăng Ký
+            </button>
+            
+            <div class="text-center text-sm text-white">
+                Đã có tài khoản? <button type="button" id="show-login" class="text-yellow-300 font-medium hover:text-yellow-200">Đăng nhập ngay</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Thêm SweetAlert2 -->
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // Check login status on page load with retry
+        async function checkSessionWithRetry(retries = 3, delay = 500) {
+            for (let i = 0; i < retries; i++) {
+                try {
+                    document.getElementById('loading-message').style.display = 'block';
+                    document.getElementById('form-container').style.display = 'none';
+                    console.log(`Thử kiểm tra session lần ${i + 1}`);
+                    const response = await fetch('http://localhost:3000/check-session', {
+                        credentials: 'include'
+                    });
+                    if (response.ok) {
+                        const data = await response.json();
+                        console.log('Kết quả kiểm tra session:', data);
+                        if (data.isAuthenticated) {
+                            window.location.href = data.isAdmin ? '/admin' : '/game';
+                            return;
+                        } else {
+                            document.getElementById('loading-message').style.display = 'none';
+                            document.getElementById('form-container').style.display = 'block';
+                            return;
+                        }
+                    } else {
+                        console.error(`Lỗi kiểm tra session, trạng thái: ${response.status}`);
+                    }
+                } catch (error) {
+                    console.error(`Lỗi kết nối server lần ${i + 1}:`, error);
+                }
+                if (i < retries - 1) {
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                }
+            }
+            console.warn('Hết lượt thử, hiển thị form đăng nhập');
+            document.getElementById('loading-message').style.display = 'none';
+            document.getElementById('form-container').style.display = 'block';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            checkSessionWithRetry();
+        });
+
+        // Toggle between login and register forms
+        const loginTab = document.getElementById('login-tab');
+        const registerTab = document.getElementById('register-tab');
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+        const showRegister = document.getElementById('show-register');
+        const showLogin = document.getElementById('show-login');
+
+        function showForm(formToShow, formToHide, activeTab, inactiveTab) {
+            formToShow.classList.remove('hidden');
+            formToHide.classList.add('hidden');
+            activeTab.classList.add('tab-active');
+            inactiveTab.classList.remove('tab-active');
+        }
+
+        loginTab.addEventListener('click', () => {
+            showForm(loginForm, registerForm, loginTab, registerTab);
+        });
+
+        registerTab.addEventListener('click', () => {
+            showForm(registerForm, loginForm, registerTab, loginTab);
+        });
+
+        showRegister.addEventListener('click', () => {
+            showForm(registerForm, loginForm, registerTab, loginTab);
+        });
+
+        showLogin.addEventListener('click', () => {
+            showForm(loginForm, registerForm, loginTab, registerTab);
+        });
+
+        // Toggle password visibility
+        function setupPasswordToggle(buttonId, inputId) {
+            const toggleButton = document.getElementById(buttonId);
+            const passwordInput = document.getElementById(inputId);
+            
+            toggleButton.addEventListener('click', () => {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                toggleButton.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+            });
+        }
+
+        setupPasswordToggle('toggle-login-password', 'login-password');
+        setupPasswordToggle('toggle-register-password', 'register-password');
+
+        // Handle login form submission
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
+            try {
+                const response = await fetch('http://localhost:3000/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password }),
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Thành công',
+                        text: data.message,
+                    }).then(() => {
+                        window.location.href = data.isAdmin ? '/admin' : '/game';
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi',
+                        text: data.message || 'Đăng nhập thất bại',
+                    });
+                }
+            } catch (error) {
+                console.error('Lỗi khi đăng nhập:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi',
+                    text: 'Lỗi kết nối server khi đăng nhập',
+                });
+            }
+        });
+
+        // Handle register form submission
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('register-username').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const confirmPassword = document.getElementById('register-confirm-password').value;
+            if (password !== confirmPassword) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi',
+                    text: 'Mật khẩu và xác nhận mật khẩu không khớp!',
+                });
+                return;
+            }
+            try {
+                const response = await fetch('/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password, email }),
+                    credentials: 'include'
+                });
+                const data = await response.text();
+                if (response.ok) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Thành công',
+                        text: data,
+                    }).then(() => {
+                        showForm(loginForm, registerForm, loginTab, registerTab);
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi',
+                        text: data,
+                    });
+                }
+            } catch (error) {
+                console.error('Lỗi khi đăng ký:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi',
+                    text: 'Lỗi kết nối server khi đăng ký',
+                });
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Select the "Quên mật khẩu?" link
+            const forgotLink = document.querySelector('a[href="#"].text-sm.text-yellow-300');
+            
+            if (forgotLink) {
+                forgotLink.addEventListener('click', function(e) {
+                    e.preventDefault(); // Prevent default link behavior
+                    window.location.href = '/forgot'; // Navigate to /forgot
+                });
+            }
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Select all links with data-modal attribute
+            const modalLinks = document.querySelectorAll('a[data-modal]');
+            const closeButtons = document.querySelectorAll('.close-modal');
+
+            // Function to open modal
+            function openModal(modal, e) {
+                e.preventDefault();
+                e.stopPropagation(); // Prevent event bubbling
+                modal.classList.remove('hidden');
+                modal.classList.remove('opacity-0');
+                modal.querySelector('.transform').classList.remove('scale-95');
+                modal.classList.add('opacity-100');
+            }
+
+            // Function to close modal
+            function closeModal(modal, e) {
+                if (e) {
+                    e.preventDefault();
+                    e.stopPropagation(); // Prevent event bubbling
+                }
+                modal.classList.remove('opacity-100');
+                modal.classList.add('opacity-0');
+                modal.querySelector('.transform').classList.add('scale-95');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                }, 300); // Match transition duration
+            }
+
+            // Open modal when link is clicked
+            modalLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    const modalId = this.getAttribute('data-modal');
+                    const modal = document.getElementById(modalId);
+                    if (modal) {
+                        openModal(modal, e);
+                    }
+                });
+            });
+
+            // Close modal when close button is clicked
+            closeButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    const modal = this.closest('.fixed');
+                    if (modal) {
+                        closeModal(modal, e);
+                    }
+                });
+            });
+
+            // Close modal when clicking outside content
+            document.querySelectorAll('.fixed').forEach(modal => {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        e.stopPropagation(); // Prevent event bubbling
+                        closeModal(this);
+                    }
+                });
+            });
+
+            // Close modal with Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    document.querySelectorAll('.fixed:not(.hidden)').forEach(modal => {
+                        closeModal(modal);
+                    });
+                }
+            });
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9355953d59f8454c',t:'MTc0NTQ5NzUyMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
