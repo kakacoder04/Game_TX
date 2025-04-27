@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WIN68 - Trò Chơi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="icon" type="image/png" sizes="128x128" href="/image/WIN68.png">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3b82f6',
+                        secondary: '#10b981',
+                        danger: '#ef4444',
+                        warning: '#f59e0b',
+                        dark: '#1e293b',
+                        light: '#f8fafc'
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.3s ease-in',
+                        'fade-out': 'fadeOut 0.3s ease-out'
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' }
+                        },
+                        fadeOut: {
+                            '0%': { opacity: '1' },
+                            '100%': { opacity: '0' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        .toast {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 12px 20px;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            min-width: 200px;
+            max-width: 300px;
+        }
+        .toast-success {
+            border-left: 4px solid #10b981;
+        }
+        .toast-error {
+            border-left: 4px solid #ef4444;
+        }
+        .countdown-timer {
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.4s;
+            border-radius: 24px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #10b981;
+        }
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        .disabled-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            z-index: 10;
+        }
+        .tooltip {
+            position: relative;
+        }
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background-color: #1e293b;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px;
+            position: absolute;
+            z-index: 20;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <div id="sidebar" class="sidebar bg-dark text-white h-full fixed inset-y-0 left-0 z-50 shadow-lg">
+            <div class="flex items-center justify-between p-4 border-b border-gray-700">
+                <div class="logo-container flex items-center space-x-2">
+                    <i class="fas fa-dice text-xl text-primary"></i>
+                    <span class="logo-text font-bold text-lg">WIN68 ADMIN</span>
+                </div>
+                <button id="toggle-sidebar" class="ml-3 text-gray-400 hover:text-white">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>            
+            <div class="p-4">
+                <div class="flex items-center space-x-2 mb-6">
+                    <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
+                        <i class="fas fa-user text-white"></i>
+                    </div>
+                    <div class="sidebar-text">
+                        <p class="font-medium">Admin</p>
+                        <p class="text-xs text-gray-400">Quản trị viên</p>
+                    </div>
+                </div>
+                <nav class="space-y-1">
+                    <a href="/admin" class="nav-item flex items-center space-x-3 p-3 rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span class="sidebar-text">Tổng quan</span>
+                    </a>
+                    <a href="/members" class="nav-item flex items-center space-x-3 p-3 rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white">
+                        <i class="fas fa-users"></i>
+                        <span class="sidebar-text">Thành viên</span>
+                    </a>
+                    <a href="/game-management" class="nav-item flex items-center space-x-3 p-3 rounded-lg bg-gray-700 text-white">
+                        <i class="fas fa-gamepad"></i>
+                        <span class="sidebar-text">Trò chơi</span>
+                    </a>
+                    <a href="/settings" class="nav-item flex items-center space-x-3 p-3 rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white">
+                        <i class="fas fa-cog"></i>
+                        <span class="sidebar-text">Cài đặt</span>
+                    </a>
+                </nav>
+            </div>
+            <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-700">
+                <a href="#" id="logout" class="nav-item flex items-center space-x-3 p-3 rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span class="sidebar-text">Đăng xuất</span>
+                </a>
+            </div>
+        </div>
+        <!-- Main Content -->
+        <div id="content-area" class="content-area flex-1 flex flex-col overflow-hidden ml-64 transition-all duration-300">
+            <!-- Top Navigation -->
+            <header class="bg-white shadow-sm">
+                <div class="flex items-center justify-between px-6 py-4">
+                    <h1 class="text-xl font-semibold text-gray-800">Quản Lý Trò Chơi</h1>
+                    <div class="flex items-center space-x-4">
+                        <div class="bg-blue-100 text-primary px-4 py-2 rounded-lg">
+                            <span class="font-semibold">Thời gian còn lại: </span>
+                            <span id="countdown-timer" class="countdown-timer text-lg">00:00</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <!-- Main Content -->
+            <main class="flex-1 overflow-y-auto p-6 bg-gray-50">
+                <!-- Real-Time Bet Totals -->
+                <div class="bg-white rounded-lg shadow mb-6 p-6">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-4">Tổng Tiền Cược Theo Thời Gian Thực</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="bg-blue-50 p-4 rounded-lg">
+                            <p class="text-sm font-medium text-gray-500">Tổng cược Tài</p>
+                            <p id="total-tai" class="text-xl font-bold text-primary mt-1">0 ₫</p>
+                        </div>
+                        <div class="bg-blue-50 p-4 rounded-lg">
+                            <p class="text-sm font-medium text-gray-500">Tổng cược Xỉu</p>
+                            <p id="total-xiu" class="text-xl font-bold text-primary mt-1">0 ₫</p>
+                        </div>
+                        <div class="bg-blue-50 p-4 rounded-lg">
+                            <p class="text-sm font-medium text-gray-500">Tổng cược Chẵn</p>
+                            <p id="total-even" class="text-xl font-bold text-primary mt-1">0 ₫</p>
+                        </div>
+                        <div class="bg-blue-50 p-4 rounded-lg">
+                            <p class="text-sm font-medium text-gray-500">Tổng cược Lẻ</p>
+                            <p id="total-odd" class="text-xl font-bold text-primary mt-1">0 ₫</p>
+                        </div>
+                        <!-- Specific Sum Bets -->
+                        <div class="bg-blue-50 p-4 rounded-lg col-span-1 md:col-span-2 lg:col-span-4">
+                            <p class="text-sm font-medium text-gray-500">Tổng cược theo tổng điểm</p>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-8 gap-2 mt-2">
+                                <div class="bg-gray-100 p-2 rounded text-center">
+                                    <p class="text-xs font-medium">Tổng 3</p>
+                                    <p id="total-3" class="text-sm font-bold text-primary">0 ₫</p>
+                                </div>
+                                <div class="bg-gray-100 p-2 rounded text-center">
+                                    <p class="text-xs font-medium">Tổng 4</p>
+                                    <p id="total-4" class="text-sm font-bold text-primary">0 ₫</p>
+                                </div>
+                                <div class="bg-gray-100 p-2 rounded text-center">
+                                    <p class="text-xs font-medium">Tổng 5</p>
+                                    <p id="total-5" class="text-sm font-bold text-primary">0 ₫</p>
+                                </div>
+                                <div class="bg-gray-100 p-2 rounded text-center">
+                                    <p class="text-xs font-medium">Tổng 6</p>
+                                    <p id="total-6" class="text-sm font-bold text-primary">0 ₫</p>
+                                </div>
+                                <div class="bg-gray-100 p-2 rounded text-center">
+                                    <p class="text-xs font-medium">Tổng 7</p>
+                                    <p id="total-7" class="text-sm font-bold text-primary">0 ₫</p>
+                                </div>
+                                <div class="bg-gray-100 p-2 rounded text-center">
+                                    <p class="text-xs font-medium">Tổng 8</p>
+                                    <p id="total-8" class="text-sm font-bold text-primary">0 ₫</p>
+                                </div>
+                                <div class="bg-gray-100 p-2 rounded text-center">
+                                    <p class="text-xs font-medium">Tổng 9</p>
+                                    <p id="total-9" class="text-sm font-bold text-primary">0 ₫</p>
+                                </div>
+                                <div class="bg-gray-100 p-2 rounded text-center">
+                                    <p class="text-xs font-medium">Tổng 10</p>
+                                    <p id="total-10" class="text-sm font-bold text-primary">0 ₫</p>
+                                </div>
+                                <div class="bg-gray-100 p-2 rounded text-center">
+                                    <p class="text-xs font-medium">Tổng 11</p>
+                                    <p id="total-11" class="text-sm font-bold text-primary">0 ₫</p>
+                                </div>
+                                <div class="bg-gray-100 p-2 rounded text-center">
+                                    <p class="text-xs font-medium">Tổng 12</p>
+                                    <p id="total-12" class="text-sm font-bold text-primary">0 ₫</p>
+                                </div>
+                                <div class="bg-gray-100 p-2 rounded text-center">
+                                    <p class="text-xs font-medium">Tổng 13</p>
+                                    <p id="total-13" class="text-sm font-bold text-primary">0 ₫</p>
+                                </div>
+                                <div class="bg-gray-100 p-2 rounded text-center">
+                                    <p class="text-xs font-medium">Tổng 14</p>
+                                    <p id="total-14" class="text-sm font-bold text-primary">0 ₫</p>
+                                </div>
+                                <div class="bg-gray-100 p-2 rounded text-center">
+                                    <p class="text-xs font-medium">Tổng 15</p>
+                                    <p id="total-15" class="text-sm font-bold text-primary">0 ₫</p>
+                                </div>
+                                <div class="bg-gray-100 p-2 rounded text-center">
+                                    <p class="text-xs font-medium">Tổng 16</p>
+                                    <p id="total-16" class="text-sm font-bold text-primary">0 ₫</p>
+                                </div>
+                                <div class="bg-gray-100 p-2 rounded text-center">
+                                    <p class="text-xs font-medium">Tổng 17</p>
+                                    <p id="total-17" class="text-sm font-bold text-primary">0 ₫</p>
+                                </div>
+                                <div class="bg-gray-100 p-2 rounded text-center">
+                                    <p class="text-xs font-medium">Tổng 18</p>
+                                    <p id="total-18" class="text-sm font-bold text-primary">0 ₫</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Game Settings -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Manual Dice Setting -->
+                    <div class="bg-white rounded-lg shadow p-6 relative" id="manual-dice-setting">
+                        <h2 class="text-lg font-semibold text-gray-800 mb-4">Cài Đặt Kết Quả Xúc Xắc Thủ Công</h2>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                            <div class="flex flex-col">
+                                <label for="dice1" class="text-sm font-medium text-gray-700 mb-1">Xúc xắc 1:</label>
+                                <select id="dice1" class="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary shadow-sm">
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                    <option value="6">6</option>
+                                </select>
+                            </div>
+                            <div class="flex flex-col">
+                                <label for="dice2" class="text-sm font-medium text-gray-700 mb-1">Xúc xắc 2:</label>
+                                <select id="dice2" class="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary shadow-sm">
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                    <option value="6">6</option>
+                                </select>
+                            </div>
+                            <div class="flex flex-col">
+                                <label for="dice3" class="text-sm font-medium text-gray-700 mb-1">Xúc xắc 3:</label>
+                                <select id="dice3" class="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary shadow-sm">
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                    <option value="6">6</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="flex justify-center mb-4">
+                            <button id="set-dice" class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center">
+                                <i class="fas fa-dice mr-2"></i> Cài đặt kết quả
+                            </button>
+                        </div>
+                        <div id="manual-dice-overlay" class="disabled-overlay hidden">
+                            <span class="text-gray-600 font-medium">Đã khóa</span>
+                        </div>
+                    </div>
+                    <!-- AutoWin Setting -->
+                    <div class="bg-white rounded-lg shadow p-6 relative overflow-hidden">
+                        <!-- Overlay che nhẹ -->
+                        <div class="absolute top-0 left-0 right-0 bottom-0 bg-white bg-opacity-70 z-20 flex items-center justify-center pointer-events-none">
+                            <span class="text-4xl font-semibold text-gray-500 opacity-100 italic">
+                                <a class="font-bold">Coming...</a>
+                            </span>
+                        </div>                        
+                    
+                        <h2 class="text-lg font-semibold text-gray-800 mb-4">Chế Độ AutoWin</h2>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <label class="text-sm font-medium text-gray-700">AutoWin:</label>
+                                <div class="tooltip">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="autowin-toggle" disabled>
+                                        <span class="slider"></span>
+                                    </label>
+                                    <span class="tooltip-text">Khi bật, hệ thống sẽ tự động chọn kết quả xúc xắc để tối ưu hóa lợi nhuận.</span>
+                                </div>
+                            </div>
+                            <span id="autowin-status" class="px-3 py-1 rounded-full text-sm font-medium" style="background-color: #f1f1f1; color: #666;">OFF</span>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-2">Bật AutoWin để tự động chọn kết quả xúc xắc dựa trên tổng cược.</p>
+                    </div>                    
+                </div>
+            </main>
+        </div>
+    </div>
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <script>
+        // Sidebar toggle
+        document.getElementById('toggle-sidebar').addEventListener('click', () => {
+            const sidebar = document.getElementById('sidebar');
+            const contentArea = document.getElementById('content-area');
+            sidebar.classList.toggle('sidebar-collapsed');
+            contentArea.classList.toggle('content-expanded');
+        });
+
+        // Logout
+        document.getElementById('logout').addEventListener('click', async (e) => {
+            e.preventDefault();
+            try {
+                const response = await fetch('/logout', { method: 'POST' });
+                const data = await response.json();
+                if (response.ok) {
+                    Swal.fire({ icon: 'success', title: 'Thành công', text: data.message }).then(() => {
+                        window.location.href = '/';
+                    });
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Lỗi', text: data.message });
+                }
+            } catch (error) {
+                Swal.fire({ icon: 'error', title: 'Lỗi', text: 'Đã xảy ra lỗi khi đăng xuất' });
+            }
+        });
+
+        // Toast notification
+        function showToast(message, type = 'success') {
+            const toastContainer = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type} animate-fade-in`;
+            toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} mr-2"></i> ${message}`;
+            toastContainer.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.add('animate-fade-out');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Fetch real-time bet totals
+        async function fetchBetTotals() {
+            try {
+                const response = await fetch('/admin/bet-totals', {
+                    credentials: 'include',
+                    headers: { 'Cache-Control': 'no-cache' }
+                });
+                if (!response.ok) throw new Error('Không thể lấy tổng tiền cược');
+                const data = await response.json();
+                // Update UI
+                document.getElementById('total-tai').textContent = `${data.tai.toLocaleString()} ₫`;
+                document.getElementById('total-xiu').textContent = `${data.xiu.toLocaleString()} ₫`;
+                document.getElementById('total-even').textContent = `${data.even.toLocaleString()} ₫`;
+                document.getElementById('total-odd').textContent = `${data.odd.toLocaleString()} ₫`;
+                for (let i = 4; i <= 17; i++) {
+                    document.getElementById(`total-${i}`).textContent = `${data[i].toLocaleString()} ₫`;
+                }
+            } catch (error) {
+                console.error('Lỗi:', error);
+                showToast('Lỗi khi lấy tổng tiền cược', 'error');
+            }
+        }
+
+        // Set dice manually
+        document.getElementById('set-dice').addEventListener('click', async () => {
+            const dice1 = parseInt(document.getElementById('dice1').value);
+            const dice2 = parseInt(document.getElementById('dice2').value);
+            const dice3 = parseInt(document.getElementById('dice3').value);
+            try {
+                const response = await fetch('/admin/set-dice', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ dice1, dice2, dice3 })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    showToast(data.message, 'success');
+                } else {
+                    showToast(data.message, 'error');
+                }
+            } catch (error) {
+                console.error('Lỗi:', error);
+                showToast('Lỗi khi cài đặt kết quả xúc xắc', 'error');
+            }
+        });
+
+        // Debounce function
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // DOM elements for AutoWin (kept for reference but not used)
+        const autowinToggle = document.getElementById('autowin-toggle');
+        const autowinStatus = document.getElementById('autowin-status');
+        const manualDiceSetting = document.getElementById('manual-dice-setting');
+        const manualDiceOverlay = document.getElementById('manual-dice-overlay');
+        const setDiceButton = document.getElementById('set-dice');
+        const diceInputs = [document.getElementById('dice1'), document.getElementById('dice2'), document.getElementById('dice3')];
+
+        // Countdown timer
+        const countdownDuration = 36000;
+        async function updateCountdown() {
+            try {
+                const response = await fetch('/api/get-start-time', { credentials: 'include' });
+                if (!response.ok) throw new Error('Không thể lấy thời gian bắt đầu');
+                const data = await response.json();
+                const startTime = data.startTime;
+                const elapsed = Date.now() - startTime;
+                const remaining = Math.max(0, countdownDuration - elapsed);
+                const seconds = Math.floor(remaining / 1000);
+                const minutes = Math.floor(seconds / 60);
+                const secs = seconds % 60;
+                const timerElement = document.getElementById('countdown-timer');
+                timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                if (remaining <= 10000) {
+                    timerElement.classList.add('text-danger');
+                } else {
+                    timerElement.classList.remove('text-danger');
+                }
+            } catch (error) {
+                console.error('Lỗi khi cập nhật đồng hồ:', error);
+                showToast('Lỗi khi cập nhật đồng hồ đếm ngược', 'error');
+            }
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchBetTotals();
+            updateCountdown();
+            setInterval(fetchBetTotals, 5000);
+            setInterval(updateCountdown, 1000);
+        });
+    </script>
+</body>
+</html>
