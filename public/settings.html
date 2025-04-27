@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WIN68 - Cài đặt</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/png" sizes="128x128" href="/image/WIN68.png">
+    <!-- SweetAlert2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3b82f6',
+                        secondary: '#10b981',
+                        danger: '#ef4444',
+                        warning: '#f59e0b',
+                        dark: '#1e293b',
+                        light: '#f8fafc'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        .toast {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 12px 20px;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            min-width: 200px;
+            max-width: 300px;
+        }
+        .toast-success {
+            border-left: 4px solid #10b981;
+        }
+        .toast-error {
+            border-left: 4px solid #ef4444;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+        @keyframes slideOut {
+            from { transform: translateX(0); }
+            to { transform: translateX(100%); }
+        }
+        .notification {
+            animation: slideIn 0.3s ease-out;
+        }
+        .notification-exit {
+            animation: slideOut 0.3s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <div id="sidebar" class="sidebar bg-dark text-white h-full fixed inset-y-0 left-0 z-50 shadow-lg">
+            <div class="flex items-center justify-between p-4 border-b border-gray-700">
+                <div class="logo-container flex items-center space-x-2">
+                    <i class="fas fa-dice text-xl text-primary"></i>
+                    <span class="logo-text font-bold text-lg">WIN68 ADMIN</span>
+                </div>
+                <button id="toggle-sidebar" class="ml-3 text-gray-400 hover:text-white">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            <div class="p-4">
+                <div class="flex items-center space-x-2 mb-6">
+                    <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
+                        <i class="fas fa-user text-white"></i>
+                    </div>
+                    <div class="sidebar-text">
+                        <p class="font-medium">Admin</p>
+                        <p class="text-xs text-gray-400">Quản trị viên</p>
+                    </div>
+                </div>
+                <nav class="space-y-1">
+                    <a href="/admin" class="nav-item flex items-center space-x-3 p-3 rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span class="sidebar-text">Tổng quan</span>
+                    </a>
+                    <a href="/members" class="nav-item flex items-center space-x-3 p-3 rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white">
+                        <i class="fas fa-users"></i>
+                        <span class="sidebar-text">Thành viên</span>
+                    </a>
+                    <a href="/game-management" class="nav-item flex items-center space-x-3 p-3 rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white">
+                        <i class="fas fa-gamepad"></i>
+                        <span class="sidebar-text">Trò chơi</span>
+                    </a>
+                    <a href="/settings" class="nav-item flex items-center space-x-3 p-3 rounded-lg bg-gray-700 text-white">
+                        <i class="fas fa-cog"></i>
+                        <span class="sidebar-text">Cài đặt</span>
+                    </a>
+                </nav>
+            </div>
+            <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-700">
+                <a href="#" id="logout" class="nav-item flex items-center space-x-3 p-3 rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span class="sidebar-text">Đăng xuất</span>
+                </a>
+            </div>
+        </div>
+        <!-- Main Content -->
+        <div id="content-area" class="content-area flex-1 flex flex-col overflow-hidden ml-64 transition-all duration-300">
+            <!-- Top Navigation -->
+            <header class="bg-white shadow-sm">
+                <div class="flex items-center justify-between px-6 py-4">
+                    <h1 class="text-xl font-semibold text-gray-800">Cài đặt</h1>
+                </div>
+            </header>
+            <!-- Main Content -->
+            <main class="flex-1 overflow-y-auto p-6 bg-gray-50">
+                <div class="bg-white rounded-lg shadow mb-6">
+                    <div class="p-6">
+                        <h2 class="text-lg font-semibold text-gray-800 mb-6">Cài đặt Hệ thống</h2>
+                        <div class="space-y-6">
+                            <!-- Change Admin Password -->
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="text-sm font-medium text-gray-700">Đổi Mật Khẩu Admin</h3>
+                                    <p class="text-xs text-gray-500">Thay đổi mật khẩu tài khoản quản trị</p>
+                                </div>
+                                <button id="change-admin-password" class="px-4 py-2 bg-primary text-white rounded-lg shadow-sm hover:bg-blue-600 transition duration-200 text-sm font-semibold">
+                                    Đổi Mật Khẩu
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="toast-container"></div>
+    <script src="js/settings.js"></script>
+</body>
+</html>
